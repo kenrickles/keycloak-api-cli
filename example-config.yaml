@@ -1,0 +1,6 @@
+url: http://localhost:8080/auth
+client_id: admin-cli
+client_secret:
+username: admin
+password: admin
+realm: master
