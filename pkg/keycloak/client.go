@@ -32,12 +32,18 @@ func NewClient(cfg config.KeycloakConfig) *KeycloakClient {
 }
 
 // Authenticate method for KeycloakClient to authenticate with the Keycloak server
-func (kc *KeycloakClient) Authenticate(clientID string, clientSecret string) error {
-    // Set up the payload for the request
+func (kc *KeycloakClient) Authenticate(cfg config.KeycloakConfig) error {
     data := url.Values{}
-    data.Set("client_id", clientID)
-    data.Set("client_secret", clientSecret)
-    data.Set("grant_type", "client_credentials")
+    data.Set("client_id", cfg.ClientID)
+    data.Set("grant_type", "password")
+    data.Set("username", cfg.Username)
+    data.Set("password", cfg.Password)
+
+    // Include client_secret only if it's a confidential client
+    if cfg.ClientSecret != "" {
+        data.Set("client_secret", cfg.ClientSecret)
+        data.Set("grant_type", "client_credentials")
+    }
 
     // Construct the request URL
     requestURL := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token", kc.BaseURL, kc.Realm)

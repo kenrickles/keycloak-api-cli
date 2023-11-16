@@ -16,6 +16,10 @@ func main() {
 
     // Initialize Keycloak client
     kcClient := keycloak.NewClient(cfg)
+	err = kcClient.Authenticate(cfg)
+	if err != nil {
+		log.Fatalf("Failed to authenticate: %v", err)
+	}
 
     // Execute the root command with the Keycloak client
     cmd.Execute(kcClient)

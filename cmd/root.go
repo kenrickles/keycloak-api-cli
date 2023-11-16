@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(kcClient *keycloak.KeycloakClient) {
-    rootCmd.AddCommand(NewRealmsCmd(kcClient))
+    rootCmd.AddCommand(realmsCmd(kcClient))
 
     if err := rootCmd.Execute(); err != nil {
         fmt.Fprintln(os.Stderr, err)
@@ -34,7 +34,6 @@ func init() {
 }
 
 func initConfig() {
-    fmt.Println("Initializing configuration...")
 
     if cfgFile != "" {
         fmt.Println("Using config file:", cfgFile)
