@@ -1,0 +1,57 @@
+name: Cross-Platform Go Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger the workflow on tag push matching v*, e.g., v1.0
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.21.4]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        arch: [amd64, arm64]
+
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o myapp-${{ matrix.os }}-${{ matrix.arch }} ./...
+    
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: myapp-${{ matrix.os }}-${{ matrix.arch }}
+        path: myapp-${{ matrix.os }}-${{ matrix.arch }}
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      if: github.ref == 'refs/heads/main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      if: github.ref == 'refs/heads/main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./myapp-${{ matrix.os }}-${{ matrix.arch }}
+        asset_name: myapp-${{ matrix.os }}-${{ matrix.arch }}
+        asset_content_type: application/octet-stream
