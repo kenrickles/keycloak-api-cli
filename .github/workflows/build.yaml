@@ -44,29 +44,45 @@ jobs:
           path: artifacts
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+        run: |
+          TAG_NAME=$(git describe --tags --abbrev=0)
+          RELEASE_NAME="Release $TAG_NAME"
+          RELEASE_BODY=$(git log ${TAG_NAME}..HEAD --pretty=format:"%h - %s" | tr "\n" "\\n")
+          POST_DATA=$(printf '{
+            "tag_name": "%s",
+            "target_commitish": "main",
+            "name": "%s",
+            "body": "%s",
+            "draft": false,
+            "prerelease": false
+          }' "$TAG_NAME" "$RELEASE_NAME" "$RELEASE_BODY")
+          curl \
+            -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$POST_DATA" \
+            "https://api.github.com/repos/${{ github.repository }}/releases"
 
       - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          for file in artifacts/*; do
-            if [ -f "$file" ]; then
-              echo "Uploading $file"
-              asset_name=$(basename "$file")
-              curl \
-                -X POST \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Content-Type: $(file -b --mime-type "$file")" \
-                --data-binary @"$file" \
-                "${{ steps.create_release.outputs.upload_url }}?name=$asset_name"
-            fi
+          # Assuming the tag name is set correctly
+          TAG_NAME=$(git describe --tags --abbrev=0)
+          RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG_NAME" \
+            | jq -r .id)
+          # Upload each artifact file as a release asset
+          for artifact in keycloak-api-cli-*; do
+            echo "Uploading $artifact as a release asset"
+            curl \
+              -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @$artifact \
+              "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=$(basename $artifact)"
           done
 
 
