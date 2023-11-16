@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         go-version: [1.21.4]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        arch: [amd64]
+        os: [linux, darwin, windows]
+        arch: [amd64] 
 
     steps:
     - name: Set up Go
@@ -25,13 +25,13 @@ jobs:
 
     - name: Build
       run: |
-        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o myapp-${{ matrix.os }}-${{ matrix.arch }} ./...
+        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o keycloak-api-cli-${{ matrix.os }}-${{ matrix.arch }} .
     
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: myapp-${{ matrix.os }}-${{ matrix.arch }}
-        path: myapp-${{ matrix.os }}-${{ matrix.arch }}
+        name: keycloak-api-cli-${{ matrix.os }}-${{ matrix.arch }}
+        path: keycloak-api-cli-${{ matrix.os }}-${{ matrix.arch }}
 
     - name: Create Release
       id: create_release
@@ -52,6 +52,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./myapp-${{ matrix.os }}-${{ matrix.arch }}
-        asset_name: myapp-${{ matrix.os }}-${{ matrix.arch }}
+        asset_path: ./keycloak-api-cli-${{ matrix.os }}-${{ matrix.arch }}
+        asset_name: keycloak-api-cli-${{ matrix.os }}-${{ matrix.arch }}
         asset_content_type: application/octet-stream
