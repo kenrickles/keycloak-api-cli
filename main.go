@@ -2,6 +2,7 @@ package main
 
 import (
     "log"
+	"fmt"
     "keycloak-api-cli/cmd"
     "keycloak-api-cli/pkg/keycloak"
     "keycloak-api-cli/pkg/config"
