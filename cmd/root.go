@@ -11,7 +11,10 @@ import (
 
 // Intialise Variable
 var cfgFile string
-var realmName string 
+var realmName string
+var username string
+var password string
+var email string
 
 var rootCmd = &cobra.Command{
     Use:   "keycloak-api-cli",

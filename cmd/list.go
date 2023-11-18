@@ -15,6 +15,7 @@ func ListCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
 		Short: "List users, realms, resources, or roles in Keycloak",
 	}
 	ListCommand.AddCommand(ListRealmCommand(kcClient))
+	ListCommand.AddCommand(ListUsersCommand(kcClient))
 
 	return ListCommand
 }
@@ -35,6 +36,24 @@ func ListRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
             }
             for _, realm := range realms {
 				fmt.Printf("Realm Name: %s, Realm ID: %s\n", realm.Realm, realm.ID)
+            }
+        },
+    }
+}
+
+func ListUsersCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
+    return &cobra.Command{
+        Use:   "users",
+        Short: "List all users",
+        Long:  `List all users in the Keycloak instance.`,
+        Run: func(cmd *cobra.Command, args []string) {
+            users, err := kcClient.ListUsers()
+            if err != nil {
+                fmt.Printf("Error listing users: %v\n", err)
+                return
+            }
+            for _, user := range users {
+				fmt.Printf("User Name: %s, User ID: %s\n", user.Username, user.ID)
             }
         },
     }
