@@ -5,6 +5,7 @@ import (
 	"keycloak-api-cli/pkg/keycloak"
 	
 	"github.com/spf13/cobra"
+    "github.com/spf13/viper"
 )
 
 
@@ -42,19 +43,34 @@ func GetRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
 }
 
 func GetUsersCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
-    return &cobra.Command{
+    var realm string
+    usersCmd := &cobra.Command{
         Use:   "users",
         Short: "List all users",
         Long:  `List all users in the Keycloak instance.`,
         Run: func(cmd *cobra.Command, args []string) {
-            users, err := kcClient.ListUsers()
+            // Check if the realm flag is set, else use the default realm
+            realm, _ := cmd.Flags().GetString("realm")
+            if realm == "" {
+                realm = viper.GetString("default_realm")
+            }
+
+            // Use the specified or default realm for listing users
+            users, err := kcClient.ListUsers(realm) // Make sure ListUsers accepts a realm parameter
             if err != nil {
-                fmt.Printf("Error listing users: %v\n", err)
+                fmt.Printf("Error listing users in realm %s: %v\n", realm, err)
                 return
             }
+
+            // Iterate and print details of each user
             for _, user := range users {
-				fmt.Printf("Realm: %s, User Name: %s, User ID: %s\n",kcClient.RealmToEdit, user.Username, user.ID)
+                fmt.Printf("Realm: %s, User Name: %s, User ID: %s\n", realm, user.Username, user.ID)
             }
         },
     }
+
+    // Attach the realm flag to the command
+    usersCmd.Flags().StringVarP(&realm, "realm", "r", "", "Specify the realm to list users")
+
+    return usersCmd
 }

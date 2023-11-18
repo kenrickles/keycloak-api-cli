@@ -18,7 +18,7 @@ type KeycloakClient struct {
     Client     *http.Client
     Token      string
     AuthRealm  string
-    RealmToEdit string
+    DefaultRealm string
 }
 
 // NewClient creates a new instance of KeycloakClient
@@ -29,7 +29,7 @@ func NewClient(cfg config.KeycloakConfig) *KeycloakClient {
             Timeout: time.Second * 30,
         },
         AuthRealm: cfg.AuthRealm,
-        RealmToEdit: cfg.RealmToEdit,
+        DefaultRealm: cfg.DefaultRealm,
     }
 }
 

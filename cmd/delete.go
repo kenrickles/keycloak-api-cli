@@ -8,6 +8,7 @@ import (
 	"keycloak-api-cli/pkg/keycloak"
 
 	"github.com/spf13/cobra"
+    "github.com/spf13/viper"
 )
 
 
@@ -56,21 +57,27 @@ func DeleteRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
 // Delete User
 func DeleteUserCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
     var (
+        realm    string
         userID   string
         username string
     )
 
-    DeleteUserCommand := &cobra.Command{
+    deleteUserCmd := &cobra.Command{
         Use:   "user",
         Short: "Delete a Keycloak user by username",
         Run: func(cmd *cobra.Command, args []string) {
+            // Check if the realm flag is set, else use the default realm
+            realm, _ := cmd.Flags().GetString("realm")
+            if realm == "" {
+                realm = viper.GetString("default_realm")
+            }
             if username == "" && userID == "" {
                 username = askForUserName()
             }
 
             if username != "" {
                 // Use username to retrieve userID
-                retrievedUserID, err := kcClient.GetUserIDByUsername(username)
+                retrievedUserID, err := kcClient.GetUserIDByUsername(realm, username)
                 if err != nil {
                     fmt.Printf("Error retrieving userID for username %s: %v\n", username, err)
                     return
@@ -88,14 +95,18 @@ func DeleteUserCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
                 return
             }
 
-            if err := kcClient.DeleteUser(userID); err != nil {
+            if err := kcClient.DeleteUser(realm, userID); err != nil {
                 fmt.Printf("Error deleting user: %v\n", err)
             } else {
-                fmt.Printf("User %s (userID: %s) deleted successfully\n", username, userID)
+                fmt.Printf("User %s (userID: %s) deleted successfully in realm %s\n", username, userID, realm)
             }
         },
     }
-    DeleteUserCommand.Flags().StringVarP(&userID, "userid", "i", "", "ID of the user to delete")
-    DeleteUserCommand.Flags().StringVarP(&username, "username", "u", "", "Username of the user to delete")
-    return DeleteUserCommand
+
+    deleteUserCmd.Flags().StringVarP(&realm, "realm", "r", "", "Specify the realm to delete the user")
+    deleteUserCmd.Flags().StringVarP(&userID, "userid", "i", "", "ID of the user to delete")
+    deleteUserCmd.Flags().StringVarP(&username, "username", "u", "", "Username of the user to delete")
+
+    return deleteUserCmd
 }
+

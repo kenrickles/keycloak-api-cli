@@ -17,10 +17,10 @@ type User struct {
 }
 
 // CreateUser creates a new user in Keycloak
-func (kc *KeycloakClient) CreateUser(username, email, password string) error {
+func (kc *KeycloakClient) CreateUser(realm, username, email, password string) error {
     userDetails := struct {
-        Username   string `json:"username"`
-        Email      string `json:"email"`
+        Username    string `json:"username"`
+        Email       string `json:"email"`
         Credentials []struct {
             Type      string `json:"type"`
             Value     string `json:"value"`
@@ -35,13 +35,15 @@ func (kc *KeycloakClient) CreateUser(username, email, password string) error {
             Temporary bool   `json:"temporary"`
         }{
             {
-                Type:  "password",
-                Value: password,
+                Type:      "password",
+                Value:     password,
+                Temporary: false, // Set to true if you want the user to change password on first login
             },
         },
     }
 
-    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.RealmToEdit)
+    // Use the provided realm in the URL instead of the default realm
+    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, realm)
 
     // Encode the user details as JSON for the request body
     jsonBody, err := json.Marshal(userDetails)
@@ -67,15 +69,17 @@ func (kc *KeycloakClient) CreateUser(username, email, password string) error {
     // Check for successful status code, typically 201 for creation
     if res.StatusCode != http.StatusCreated {
         errorResponse, _ := ioutil.ReadAll(res.Body)
-        return fmt.Errorf("failed to create user, received status code: %d, error message: %s", res.StatusCode, errorResponse)
+        return fmt.Errorf("failed to create user in realm %s, received status code: %d, error message: %s", realm, res.StatusCode, string(errorResponse))
     }
 
     return nil
 }
 
-// ListUsers lists all users in Keycloak
-func (kc *KeycloakClient) ListUsers() ([]User, error) {
-    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.RealmToEdit)
+
+func (kc *KeycloakClient) ListUsers(realm string) ([]User, error) {
+    // Use the provided realm in the URL instead of the default realm
+    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, realm)
+
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
         return nil, err
@@ -97,8 +101,9 @@ func (kc *KeycloakClient) ListUsers() ([]User, error) {
     return users, nil
 }
 
-func (kc *KeycloakClient) DeleteUser(userID string) error {
-    url := fmt.Sprintf("%s/admin/realms/%s/users/%s", kc.BaseURL, kc.RealmToEdit, userID)
+
+func (kc *KeycloakClient) DeleteUser(realm, userID string) error {
+    url := fmt.Sprintf("%s/admin/realms/%s/users/%s", kc.BaseURL, realm, userID)
 
     req, err := http.NewRequest("DELETE", url, nil)
     if err != nil {
@@ -112,19 +117,19 @@ func (kc *KeycloakClient) DeleteUser(userID string) error {
     }
     defer res.Body.Close()
 
-    // Check for successful status code, typically 204 for successful deletion
     if res.StatusCode != http.StatusNoContent {
         errorResponse, _ := ioutil.ReadAll(res.Body)
-        return fmt.Errorf("failed to delete user, received status code: %d, error message: %s", res.StatusCode, errorResponse)
+        return fmt.Errorf("failed to delete user in realm %s, received status code: %d, error message: %s", realm, res.StatusCode, string(errorResponse))
     }
 
     return nil
 }
 
 
+
 // GetUserIDByUsername retrieves the userID based on the provided username
-func (kc *KeycloakClient) GetUserIDByUsername(username string) (string, error) {
-    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.RealmToEdit)
+func (kc *KeycloakClient) GetUserIDByUsername(realm, username string) (string, error) {
+    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, realm)
 
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
@@ -140,23 +145,21 @@ func (kc *KeycloakClient) GetUserIDByUsername(username string) (string, error) {
 
     if res.StatusCode != http.StatusOK {
         errorResponse, _ := ioutil.ReadAll(res.Body)
-        return "", fmt.Errorf("failed to retrieve users, received status code: %d, error message: %s", res.StatusCode, errorResponse)
+        return "", fmt.Errorf("failed to retrieve users from realm %s, received status code: %d, error message: %s", realm, res.StatusCode, string(errorResponse))
     }
 
-    // Read the response body and parse it as an array of User objects
     var users []User
     err = json.NewDecoder(res.Body).Decode(&users)
     if err != nil {
         return "", err
     }
 
-    // Search for the user with the matching username
     for _, user := range users {
         if user.Username == username {
             return user.ID, nil
         }
     }
 
-    // If no matching user is found, return an error
-    return "", fmt.Errorf("user with username %s not found in %s realm", username, kc.RealmToEdit)
+    return "", fmt.Errorf("user with username %s not found in realm %s", username, realm)
 }
+

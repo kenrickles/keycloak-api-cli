@@ -15,25 +15,31 @@
 - **Usage**: `create [user, realm, resource, role]`
 - **Description**: Creates various entities in Keycloak.
 - **Subcommands**:
-  - `create user`: Creates a new user.
+  - `create user`: Creates a new user in a specified realm.
+    - **Flags**: `-u, --username <username>`, `-p, --password <password>`, `-e, --email <email>`, `-r, --realm <realm>`
+    - **Example**: `./keycloak-api-cli create user -u john -p pass123 -e john@example.com -r myrealm`
   - `create realm`: Creates a new realm.
-- **Example**: `./keycloak-api-cli create user --config path/to/config.yaml`
+    - **Example**: `./keycloak-api-cli create realm --config path/to/config.yaml`
 
 ### 2. `delete`
 - **Usage**: `delete [user, realm, resource, role]`
 - **Description**: Deletes entities in Keycloak.
 - **Subcommands**:
-  - `delete user`: Deletes a user.
+  - `delete user`: Deletes a user from a specified realm.
+    - **Flags**: `-i, --userid <userID>`, `-u, --username <username>`, `-r, --realm <realm>`
+    - **Example**: `./keycloak-api-cli delete user -u john -r myrealm`
   - `delete realm`: Deletes a realm.
-- **Example**: `./keycloak-api-cli delete realm --config path/to/config.yaml`
+    - **Example**: `./keycloak-api-cli delete realm --config path/to/config.yaml`
 
 ### 3. `get`
 - **Usage**: `get [users, realms, resources, roles]`
 - **Description**: Retrieves information about entities in Keycloak.
 - **Subcommands**:
-  - `get users`: Lists all users in a realm.
+  - `get users`: Lists all users in a specified realm.
+    - **Flags**: `-r, --realm <realm>`
+    - **Example**: `./keycloak-api-cli get users -r myrealm --config path/to/config.yaml` 
   - `get realms`: Lists all realms.
-- **Example**: `./keycloak-api-cli get realms --config path/to/config.yaml`
+    - **Example**: `./keycloak-api-cli get realms --config path/to/config.yaml`
 
 ### 4. Root Command
 - **Usage**: `keycloak-api-cli`

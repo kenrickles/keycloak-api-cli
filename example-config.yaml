@@ -4,4 +4,4 @@ client_secret:
 username: admin
 password: admin
 auth_realm: master
-realm_to_edit: master
+default_realm: master

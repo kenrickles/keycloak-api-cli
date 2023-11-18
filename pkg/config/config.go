@@ -11,7 +11,7 @@ type KeycloakConfig struct {
     Username     string `mapstructure:"username"`
     Password     string `mapstructure:"password"`
     AuthRealm    string `mapstructure:"auth_realm"`
-    RealmToEdit  string `mapstructure:"realm_to_edit"`
+    DefaultRealm  string `mapstructure:"default_realm"`
 }
 
 // LoadConfig loads configuration from config.yaml

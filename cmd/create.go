@@ -8,6 +8,7 @@ import (
 	"keycloak-api-cli/pkg/keycloak"
 
 	"github.com/spf13/cobra"
+    "github.com/spf13/viper"
 )
 
 
@@ -26,7 +27,7 @@ func CreateCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
 
 // Create Realm
 func CreateRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
-    CreateRealmCommand := &cobra.Command{
+    realmCmd := &cobra.Command{
         Use:   "realm",
         Short: "Create a new Keycloak realm",
         Run: func(cmd *cobra.Command, args []string) {
@@ -40,8 +41,8 @@ func CreateRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
             }
         },
     }
-    CreateRealmCommand.Flags().StringVarP(&realmName, "name", "n", "", "Name of the realm to create")
-    return CreateRealmCommand
+    realmCmd.Flags().StringVarP(&realmName, "name", "n", "", "Name of the realm to create")
+    return realmCmd
 }
 
 func askForRealmName() string {
@@ -54,30 +55,45 @@ func askForRealmName() string {
 
 // Create user
 func CreateUserCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
-    CreateUserCommand := &cobra.Command{
+    var (
+        username  string
+        password  string
+        email     string
+    )
+
+    createUserCmd := &cobra.Command{
         Use:   "user",
         Short: "Create a new Keycloak user",
         Run: func(cmd *cobra.Command, args []string) {
+            realm, _ := cmd.Flags().GetString("realm")
+            if realm == "" {
+                realm = viper.GetString("default_realm") // Fallback to default realm from config
+            }
             if username == "" {
                 username = askForUserName()
             }
-			if password == "" {
+            if password == "" {
                 password = askForUserPassword()
             }
-			if email == "" {
+            if email == "" {
                 email = askForUserEmail()
             }
-            if err := kcClient.CreateUser(username, password, email); err != nil {
-                fmt.Printf("Error creating user: %v\n", err)
+
+            // Ensure to pass the 'realm' along with other parameters
+            if err := kcClient.CreateUser(realm, username, password, email); err != nil {
+                fmt.Printf("Error creating user in realm %s: %v\n", realm, err)
             } else {
-                fmt.Println("username", username, "created successfully")
+                fmt.Println("User", username, "created successfully in realm", realm)
             }
         },
     }
-    CreateUserCommand.Flags().StringVarP(&realmName, "username", "u", "", "username of the user to create")
-	CreateUserCommand.Flags().StringVarP(&password, "password", "p", "", "Password for the user")
-	CreateUserCommand.Flags().StringVarP(&email, "email", "e", "", "Email address of the user")
-    return CreateUserCommand
+
+    createUserCmd.Flags().StringP("realm", "r", "", "Specify the realm to create a user in")
+    createUserCmd.Flags().StringVarP(&username, "username", "u", "", "Username of the user to create")
+    createUserCmd.Flags().StringVarP(&password, "password", "p", "", "Password for the user")
+    createUserCmd.Flags().StringVarP(&email, "email", "e", "", "Email address of the user")
+
+    return createUserCmd
 }
 
 func askForUserName() string {

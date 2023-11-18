@@ -45,8 +45,8 @@ func TestLoadConfig(t *testing.T) {
         ClientSecret: "secret",
         Username:     "user",
         Password:     "pass",
-        AuthRealm:        "realm-test",
-        RealmToEdit:  "realm-test",
+        AuthRealm:    "realm-test",
+        DefaultRealm:  "realm-test",
     }
 
     // Compare the result with the expected configuration
