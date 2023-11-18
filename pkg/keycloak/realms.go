@@ -44,6 +44,7 @@ func (kc *KeycloakClient) ListRealms() ([]Realm, error) {
     return realms, nil
 }
 
+// Create Realm
 func (kc *KeycloakClient) CreateRealm(realmName string) error {
 	details := RealmDetails{
         Realm: realmName,
@@ -76,5 +77,28 @@ func (kc *KeycloakClient) CreateRealm(realmName string) error {
         return fmt.Errorf("failed to create realm, received status code: %d", res.StatusCode)
     }
 	
+    return nil
+}
+
+// Delete Realm
+func (kc *KeycloakClient) DeleteRealm(realmName string) error {
+    url := fmt.Sprintf("%s/admin/realms/%s", kc.BaseURL, realmName)
+
+    req, err := http.NewRequest("DELETE", url, nil)
+    if err != nil {
+        return err
+    }
+    req.Header.Set("Authorization", "Bearer "+kc.Token)
+    
+    res, err := kc.Client.Do(req)
+    if err != nil {
+        return err
+    }
+    defer res.Body.Close()
+
+    if res.StatusCode != http.StatusNoContent { // Check for 204 status code
+        return fmt.Errorf("failed to delete realm, received status code: %d", res.StatusCode)
+    }
+    
     return nil
 }

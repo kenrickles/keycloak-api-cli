@@ -9,7 +9,9 @@ import (
     "github.com/spf13/viper"
 )
 
+// Intialise Variable
 var cfgFile string
+var realmName string 
 
 var rootCmd = &cobra.Command{
     Use:   "keycloak-api-cli",
@@ -19,7 +21,9 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(kcClient *keycloak.KeycloakClient) {
-    rootCmd.AddCommand(realmsCmd(kcClient))
+    rootCmd.AddCommand(ListCommand(kcClient))
+    rootCmd.AddCommand(CreateCommand(kcClient))
+    rootCmd.AddCommand(DeleteCommand(kcClient))
 
     if err := rootCmd.Execute(); err != nil {
         fmt.Fprintln(os.Stderr, err)
