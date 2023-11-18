@@ -22,7 +22,7 @@ func TestAuthenticate(t *testing.T) {
         ClientSecret: "secret",
         Username:     "user",
         Password:     "pass",
-        Realm:        "realm-test",
+        AuthRealm:    "realm-test",
     }
 
     client := NewClient(cfg)

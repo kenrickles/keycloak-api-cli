@@ -17,7 +17,8 @@ type KeycloakClient struct {
     BaseURL    string
     Client     *http.Client
     Token      string
-    Realm      string
+    AuthRealm  string
+    RealmToEdit string
 }
 
 // NewClient creates a new instance of KeycloakClient
@@ -27,7 +28,8 @@ func NewClient(cfg config.KeycloakConfig) *KeycloakClient {
         Client: &http.Client{
             Timeout: time.Second * 30,
         },
-        Realm: cfg.Realm,
+        AuthRealm: cfg.AuthRealm,
+        RealmToEdit: cfg.RealmToEdit,
     }
 }
 
@@ -46,7 +48,7 @@ func (kc *KeycloakClient) Authenticate(cfg config.KeycloakConfig) error {
     }
 
     // Construct the request URL
-    requestURL := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token", kc.BaseURL, kc.Realm)
+    requestURL := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token", kc.BaseURL, kc.AuthRealm)
 
     // Create a new POST request
     req, err := http.NewRequest("POST", requestURL, strings.NewReader(data.Encode()))

@@ -20,7 +20,7 @@ func TestLoadConfig(t *testing.T) {
 
     // Create a temporary config file within the temp directory
     tempFilePath := filepath.Join(tempDir, "config.yaml")
-    tempConfig := []byte("url: http://example.com\nclient_id: test-id\nclient_secret: secret\nusername: user\npassword: pass\nrealm: realm-test")
+    tempConfig := []byte("url: http://example.com\nclient_id: test-id\nclient_secret: secret\nusername: user\npassword: pass\nauth_realm: realm-test\nrealm_to_edit: realm-test")
     if err := ioutil.WriteFile(tempFilePath, tempConfig, 0666); err != nil {
         t.Fatalf("Failed to write to temp file: %v", err)
     }
@@ -45,7 +45,8 @@ func TestLoadConfig(t *testing.T) {
         ClientSecret: "secret",
         Username:     "user",
         Password:     "pass",
-        Realm:        "realm-test",
+        AuthRealm:        "realm-test",
+        RealmToEdit:  "realm-test",
     }
 
     // Compare the result with the expected configuration

@@ -3,4 +3,5 @@ client_id: admin-cli
 client_secret:
 username: admin
 password: admin
-realm: master
+auth_realm: master
+realm_to_edit: master

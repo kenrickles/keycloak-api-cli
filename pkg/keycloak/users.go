@@ -41,7 +41,7 @@ func (kc *KeycloakClient) CreateUser(username, email, password string) error {
         },
     }
 
-    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.Realm)
+    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.RealmToEdit)
 
     // Encode the user details as JSON for the request body
     jsonBody, err := json.Marshal(userDetails)
@@ -75,7 +75,7 @@ func (kc *KeycloakClient) CreateUser(username, email, password string) error {
 
 // ListUsers lists all users in Keycloak
 func (kc *KeycloakClient) ListUsers() ([]User, error) {
-    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.Realm)
+    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.RealmToEdit)
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
         return nil, err
@@ -98,7 +98,7 @@ func (kc *KeycloakClient) ListUsers() ([]User, error) {
 }
 
 func (kc *KeycloakClient) DeleteUser(userID string) error {
-    url := fmt.Sprintf("%s/admin/realms/%s/users/%s", kc.BaseURL, kc.Realm, userID)
+    url := fmt.Sprintf("%s/admin/realms/%s/users/%s", kc.BaseURL, kc.RealmToEdit, userID)
 
     req, err := http.NewRequest("DELETE", url, nil)
     if err != nil {
@@ -124,7 +124,7 @@ func (kc *KeycloakClient) DeleteUser(userID string) error {
 
 // GetUserIDByUsername retrieves the userID based on the provided username
 func (kc *KeycloakClient) GetUserIDByUsername(username string) (string, error) {
-    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.Realm)
+    url := fmt.Sprintf("%s/admin/realms/%s/users", kc.BaseURL, kc.RealmToEdit)
 
     req, err := http.NewRequest("GET", url, nil)
     if err != nil {
@@ -158,5 +158,5 @@ func (kc *KeycloakClient) GetUserIDByUsername(username string) (string, error) {
     }
 
     // If no matching user is found, return an error
-    return "", fmt.Errorf("user with username %s not found", username)
+    return "", fmt.Errorf("user with username %s not found in %s realm", username, kc.RealmToEdit)
 }

@@ -24,7 +24,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(kcClient *keycloak.KeycloakClient) {
-    rootCmd.AddCommand(ListCommand(kcClient))
+    rootCmd.AddCommand(GetCommand(kcClient))
     rootCmd.AddCommand(CreateCommand(kcClient))
     rootCmd.AddCommand(DeleteCommand(kcClient))
 

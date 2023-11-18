@@ -8,22 +8,22 @@ import (
 )
 
 
-// ListCommand creates and returns a new list command
-func ListCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
-	ListCommand := &cobra.Command{
-		Use:   "list [users, realms, resources, roles]",
+// GetCommand creates and returns a new list command
+func GetCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
+	GetCommand := &cobra.Command{
+		Use:   "get [users, realms, resources, roles]",
 		Short: "List users, realms, resources, or roles in Keycloak",
 	}
-	ListCommand.AddCommand(ListRealmCommand(kcClient))
-	ListCommand.AddCommand(ListUsersCommand(kcClient))
+	GetCommand.AddCommand(GetRealmCommand(kcClient))
+	GetCommand.AddCommand(GetUsersCommand(kcClient))
 
-	return ListCommand
+	return GetCommand
 }
 
 
 
 // List Realm
-func ListRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
+func GetRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
     return &cobra.Command{
         Use:   "realms",
         Short: "List all realms",
@@ -41,7 +41,7 @@ func ListRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
     }
 }
 
-func ListUsersCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
+func GetUsersCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
     return &cobra.Command{
         Use:   "users",
         Short: "List all users",
@@ -53,7 +53,7 @@ func ListUsersCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
                 return
             }
             for _, user := range users {
-				fmt.Printf("User Name: %s, User ID: %s\n", user.Username, user.ID)
+				fmt.Printf("Realm: %s, User Name: %s, User ID: %s\n",kcClient.RealmToEdit, user.Username, user.ID)
             }
         },
     }

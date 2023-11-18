@@ -32,7 +32,6 @@ func DeleteRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
             if realmName == "" {
                 realmName = askForRealmName()
             }
-            // You can add confirmation logic here to confirm deletion
             fmt.Printf("Are you sure you want to delete the realm %s? (yes/no): ", realmName)
             reader := bufio.NewReader(os.Stdin)
             confirmation, _ := reader.ReadString('\n')
@@ -79,7 +78,6 @@ func DeleteUserCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
                 userID = retrievedUserID
             }
 
-            // You can add confirmation logic here to confirm deletion
             fmt.Printf("Are you sure you want to delete the user %s (userID: %s)? (yes/no): ", username, userID)
             reader := bufio.NewReader(os.Stdin)
             confirmation, _ := reader.ReadString('\n')
