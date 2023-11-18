@@ -44,3 +44,27 @@
 ## Additional Notes
 - The application's functionality can be extended by adding more subcommands.
 - Ensure the Keycloak server details in `config.yaml` are correct before using the commands.
+
+
+### General Overview of Cobra and Viper
+- **Cobra**: A library for creating powerful command-line applications in Go. It's used for organizing commands, subcommands, and handling command-line inputs. Cobra facilitates the creation of both simple and complex CLI applications with features like command nesting, flags, and auto-generated help texts.
+
+- **Viper**: A Go library for handling application configuration. Viper works well with environment variables, configuration files, and command-line flags. It supports reading from JSON, TOML, YAML, HCL, and Java properties config files. Viper allows easy retrieval of configuration settings, making it a flexible tool for managing dynamic configurations.
+
+### Cobra and Viper in This Application
+- **Cobra Usage**:
+  - Organizes the main commands (`create`, `delete`, `get`) and their subcommands.
+  - Parses command-line arguments and flags.
+  - Generates help commands and documentation for each command.
+
+- **Viper Usage**:
+  - Manages application configurations, primarily loaded from `config.yaml`.
+  - Facilitates runtime configuration changes, making the CLI adaptable to different environments or Keycloak setups.
+
+### Why This CLI is Useful
+- **Efficient Management**: Provides a command-line interface for managing Keycloak entities, which is faster and more efficient for many users compared to a GUI.
+- **Automation Friendly**: Ideal for scripting and automating Keycloak administration tasks.
+- **Customizable**: Easy to extend and customize for specific Keycloak management needs, thanks to the modular design using Cobra.
+- **Configuration Flexibility**: With Viper, the CLI can be easily configured for different environments, enhancing its versatility.
+
+This CLI leverages the strengths of Cobra and Viper to provide a robust, flexible, and user-friendly tool for Keycloak administration and automation, streamlining the management of authentication, authorization, and user federation within Keycloak realms.
