@@ -47,7 +47,7 @@ func initConfig() {
         fmt.Println("Using specified config file:", cfgFile)
         viper.SetConfigFile(cfgFile)
     } else {
-        defaultConfig := "config.yaml"
+        defaultConfig := "./config.yaml"
         fmt.Println("Using default config file:", defaultConfig)
         viper.SetConfigFile(defaultConfig)
     }
