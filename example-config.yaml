@@ -1,4 +1,4 @@
-url: http://localhost:8080/auth
+url: http://localhost:8080
 client_id: admin-cli
 client_secret:
 username: admin

@@ -1,6 +1,7 @@
 package config
 
 import (
+    "fmt"
     "github.com/spf13/viper"
 )
 
@@ -15,17 +16,20 @@ type KeycloakConfig struct {
 }
 
 // LoadConfig loads configuration from config.yaml
-func LoadConfig() (KeycloakConfig, error) {
+func LoadConfig(configFile string) (KeycloakConfig, error) {
     var config KeycloakConfig
 
-    // Set default configurations 	
-	viper.SetConfigName("config") 
-    viper.AddConfigPath(".")       
+    viper.SetConfigFile(configFile) // Set the configuration file
     viper.AutomaticEnv()
+
     if err := viper.ReadInConfig(); err != nil {
-        return config, err
+        return config, fmt.Errorf("failed to load config file '%s': %v", configFile, err)
     }
 
     err := viper.Unmarshal(&config)
-    return config, err
+    if err != nil {
+        return config, fmt.Errorf("error unmarshalling config: %v", err)
+    }
+
+    return config, nil
 }
