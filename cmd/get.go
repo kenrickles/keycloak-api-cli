@@ -21,8 +21,6 @@ func GetCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
 	return GetCommand
 }
 
-
-
 // List Realm
 func GetRealmCommand(kcClient *keycloak.KeycloakClient) *cobra.Command {
     return &cobra.Command{

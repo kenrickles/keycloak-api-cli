@@ -24,6 +24,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute(kcClient *keycloak.KeycloakClient) {
+    rootCmd.AddCommand(RetrieveCommand(kcClient))
     rootCmd.AddCommand(GetCommand(kcClient))
     rootCmd.AddCommand(CreateCommand(kcClient))
     rootCmd.AddCommand(DeleteCommand(kcClient))
@@ -35,31 +36,25 @@ func Execute(kcClient *keycloak.KeycloakClient) {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-    rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "./config.yaml", "config file (default is $HOME/.keycloak-api-cli.yaml)")
-
+    cobra.OnInitialize(initConfig)
+    // Set the default to an empty string
+    rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")
 }
 
 func initConfig() {
-
     if cfgFile != "" {
-        fmt.Println("Using config file:", cfgFile)
+        // Use the specified config file
+        fmt.Println("Using specified config file:", cfgFile)
         viper.SetConfigFile(cfgFile)
     } else {
-        home, err := os.UserHomeDir()
-        if err != nil {
-            fmt.Println("Unable to find home directory:", err)
-            os.Exit(1)
-        }
-        fmt.Println("Looking for config file in home directory:", home)
-        viper.AddConfigPath(home)
-        viper.SetConfigName("config.yaml")
+        defaultConfig := "config.yaml"
+        fmt.Println("Using default config file:", defaultConfig)
+        viper.SetConfigFile(defaultConfig)
     }
 
     viper.AutomaticEnv()
 
-    err := viper.ReadInConfig()
-    if err != nil {
+    if err := viper.ReadInConfig(); err != nil {
         fmt.Println("Failed to read config file:", err)
         os.Exit(1)
     } else {
